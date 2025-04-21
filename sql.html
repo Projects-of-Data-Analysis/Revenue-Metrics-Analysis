@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>SQL Analysis</title>
+    <link href="./css/styles.css" rel="stylesheet">
+    <!-- Prism.js CSS for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-vsc-dark-plus.min.css"
+          rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>SQL Analysis</h1>
+    </header>
+    <h2>
+        Commentary
+    </h2>
+    <p>
+        In this section, calculations were performed based on the metrics specified above using the relevant
+        databases, and the results obtined were interpreted and visualized. All the work was done in PostgreSQL, and
+        the SQL script file used for this section can be found
+        <a
+                href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/blob/main/sql/sql_analysis.sql"
+        >
+            here
+        </a>.
+    </p>
+    <h2>
+        Queries
+    </h2>
+
+    <section class="analysis">
+        <h3>Query 1. Viewing data in databases and preliminary data evaluation</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+SELECT *
+FROM games_payments;
+
+SELECT *
+FROM games_paid_users;
+                </code></pre>
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 2: Calculating Monthly Recurring Revenue</h2>
+        <p>Using the <code>date_trunc</code> function on the payment_date data, the dates shared in the database were
+            evaluated monthly, and the revenue_amount_usd data for each month was aggregated.<br>
+            Upon evaluating the obtained results, it is observed that there is a significant increase in MRR from
+            January to December. This increase was more pronounced in the early months of the year, while a slight
+            decrease was noted in the later months.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+SELECT
+	date_trunc('month', payment_date) AS payment_month,
+	sum(revenue_amount_usd) AS mrr
+FROM
+	games_payments
+GROUP BY
+	date_trunc('month', payment_date)
+ORDER BY
+	payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query2.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 3: Calculating Paid Users</h2>
+        <p>Similar to the previous query, the months within the payment_date data from the database were extracted
+            monthly using the <code>date_trunc</code> function, and then the number of unique values in the user_id data
+            was calculated.<br>
+            Upon examining the obtained results, it was observed that, similar to the previous query, the number of new
+            users increased by nearly 4.5 times from the beginning to the end of the year. However, while a rapid
+            increase in user numbers was seen in the early months of the year, a slight decrease was noted toward the
+            later months.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+SELECT
+    DATE_TRUNC('month', payment_date) AS payment_month,
+    COUNT(DISTINCT user_id) AS paid_users
+FROM
+	games_payments
+GROUP BY
+	DATE_TRUNC('month', payment_date)
+ORDER BY
+	payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query3.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 4: Calculating Average Revenue Per Paid User (ARPPU)</h2>
+        <p>This process utilized CTEs (Common Table Expressions). The MRR data was obtained in the first CTE, while in
+            the second CTE, the number of paying users was determined. Subsequently, the ARPPU value was calculated.<br>
+            Upon examining the obtained data, it was observed that the ARPPU value reached its lowest point in January
+            (34.663) and its highest point in February (49.320). It exhibited a relatively stable trend for the
+            remainder of the year, fluctuating between 43 and 46.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+WITH mrr AS (
+    SELECT
+        DATE_TRUNC('month', payment_date) AS payment_month,
+        SUM(revenue_amount_usd) AS mrr
+    FROM games_payments
+    GROUP BY DATE_TRUNC('month', payment_date)
+),
+paid_users AS (
+    SELECT
+        DATE_TRUNC('month', payment_date) AS payment_month,
+        COUNT(DISTINCT user_id) AS paid_users
+    FROM games_payments
+    GROUP BY DATE_TRUNC('month', payment_date)
+)
+SELECT
+    mrr.payment_month,
+    round(mrr.mrr / NULLIF(paid_users.paid_users, 0), 3) AS arppu
+FROM mrr
+JOIN paid_users ON mrr.payment_month = paid_users.payment_month
+ORDER BY payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query4.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+
+    <section class="analysis">
+        <h2>Query 4: Calculating Average Revenue Per Paid User (ARPPU)</h2>
+        <p>This process utilized CTEs (Common Table Expressions). The MRR data was obtained in the first CTE, while in
+            the second CTE, the number of paying users was determined. Subsequently, the ARPPU value was calculated.<br>
+            Upon examining the obtained data, it was observed that the ARPPU value reached its lowest point in January
+            (34.663) and its highest point in February (49.320). It exhibited a relatively stable trend for the
+            remainder of the year, fluctuating between 43 and 46.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+WITH mrr AS (
+    SELECT
+        DATE_TRUNC('month', payment_date) AS payment_month,
+        SUM(revenue_amount_usd) AS mrr
+    FROM games_payments
+    GROUP BY DATE_TRUNC('month', payment_date)
+),
+paid_users AS (
+    SELECT
+        DATE_TRUNC('month', payment_date) AS payment_month,
+        COUNT(DISTINCT user_id) AS paid_users
+    FROM games_payments
+    GROUP BY DATE_TRUNC('month', payment_date)
+)
+SELECT
+    mrr.payment_month,
+    round(mrr.mrr / NULLIF(paid_users.paid_users, 0), 3) AS arppu
+FROM mrr
+JOIN paid_users ON mrr.payment_month = paid_users.payment_month
+ORDER BY payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query4.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+
+</div>
+<!-- Prism.js JavaScript for syntax highlighting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+<!-- Modal -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        const span = document.getElementsByClassName("close")[0];
+
+        document.querySelectorAll(".queryImage").forEach(img => {
+            img.addEventListener("click", () => {
+                modal.style.display = "block";
+                modalImg.src = img.src;
+            });
+        });
+
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    });
+</script>
+
+<div class="modal" id="imageModal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+
+</body>
+</html>
