@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Revenue Metrics Analysis</title>
-    <link rel="stylesheet" href="./css/styles.css">
+    <link href="./css/styles.css" rel="stylesheet">
 </head>
 <body>
 <!-- Main Page -->
@@ -23,20 +23,222 @@
             developed.
         </p>
 
+        <!-- Data Structure -->
         <h2>Sampla Data Structure</h2>
-        <p>gfhhf
-            1<sup>st</sup> Data Set:
+        <p>
+            1<sup>st</sup> Data Set: games_paid_users.csv
         </p>
         <div class="button-container">
-<a href="https://github.com/"
-as
+            <a
+                    class="btn"
+                    href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/raw/main/data/games_paid_users.csv"
+            >
+                Download CSV File
+            </a>
+            <a
+                    class="btn"
+                    href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/tree/main/data/games_paid_users.csv"
+                    rel="noopener noreferrer"
+                    target="_blank"
+            >
+                Open in GitHub
+            </a>
         </div>
+        <br>
+        <br>
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>
+                    Column Name
+                </th>
+                <th>
+                    Description
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    user_id
+                </td>
+                <td>
+                    Unique user ids
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    game_name
+                </td>
+                <td>
+                    Names of the games (ie. game1, game2, game3)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    language
+                </td>
+                <td>
+                    Which country is the user from?
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    has_older_device_model
+                </td>
+                <td>
+                    Is the user on an old device?
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    age
+                </td>
+                <td>
+                    What is the user's age?
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <p>
+            2<sup>nd</sup> Data Set: games_payments.csv
+        </p>
+        <div class="button-container">
+            <a
+                    class="btn"
+                    href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/raw/main/data/games_payments.csv"
+            >
+                Download CSV File
+            </a>
+            <a
+                    class="btn"
+                    href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/tree/main/data/games_payments.csv"
+                    rel="noopener noreferrer"
+                    target="_blank"
+            >
+                Open in GitHub
+            </a>
+        </div>
+        <br>
+        <br>
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>
+                    Column Name
+                </th>
+                <th>
+                    Description
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    user_id
+                </td>
+                <td>
+                    Unique user ids
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    game_name
+                </td>
+                <td>
+                    Names of the games (ie. game1, game2, game3)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    language
+                </td>
+                <td>
+                    Which country is the user from?
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    has_older_device_model
+                </td>
+                <td>
+                    Is the user on an old device?
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    age
+                </td>
+                <td>
+                    What is the user's age?
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Metrics -->
+        <h2>Metrics to be Used</h2>
+        <ol>
+            <li>
+                <strong>Monthly Recurring Revenue (MRR):</strong> The amount of revenue generated in a calendar
+                month, but only from sources that recur every month.
+            </li>
+            <li>
+                <strong>Paid Users:</strong> The total number of users who have paid.
+            </li>
+            <li>
+                <strong>Average Revenue Per Paid User (ARPPU):</strong> The average revenue generated per paying user.
+            </li>
+            <li>
+                <strong>New Paid Users:</strong> The number of users who started paying during the specified
+                period (calendarmonth).
+            </li>
+            <li>
+                <strong>New MRR:</strong> The MRR generated by newly acquired paying users in a given month.
+            </li>
+            <li>
+                <strong>Churned Users:</strong> The number of users who stopped paying during the specified period.
+            </li>
+            <li>
+                <strong>Churn Rate</strong>: The ratio of churned users during a specific period to the number of
+                paid users in the previous period (calendar month).
+            </li>
+            <li>
+                <strong>Churned Revenue:</strong> The total revenue lost from users who churned, based on their
+                payments from the previous period.
+            </li>
+            <li>
+                <strong>Revenue Churn Rate:</strong> The percentage of revenue lost due to churned users in a given
+                month, relative to the total revenue from those users in the previous month.
+            </li>
+            <li>
+                <strong>Expansion MRR:</strong> The increase in MRR from one month to the next, generated by existing
+                users who started paying more.
+            </li>
+            <li>
+                <strong>Contraction MRR:</strong> The decrease in MRR from one month to the next, due to existing
+                users paying less than they did previously.
+            </li>
+            <li>
+                <strong>Customer Lifetime (LT):</strong> The average duration between a user’s first payment and when
+                they stop using the product — i.e., the average time a user stays active.
+            </li>
+            <li>
+                <strong>Customer Lifetime Value (LTV):</strong> The average total amount of money paid by a customer
+                throughout their entire usage of the product, i.e., the total revenue earned from an average user.
+            </li>
+        </ol>
     </section>
+    <br><br><br>
+    <!-- Buttons-->
     <section class="buttons">
-        <a href="sql.html" class="btn">SQL Analysis</a>
-        <a href="python.html" class="btn">Python Analysis</a>
-        <a href="tableau.html" class="btn">Tableau Analysis</a>
+        <a class="btn" href="sql.html">SQL Analysis</a>
+        <a class="btn" href="python.html">Python Analysis</a>
+        <a class="btn" href="tableau.html">Tableau Analysis</a>
     </section>
+
 </div>
 </body>
 </html>
