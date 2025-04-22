@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Tableau Analysis</title>
+    <link href="./css/styles.css" rel="stylesheet">
+    <!-- Highlight.js GitHub Dark Theme -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Tableau Analysis</h1>
+    </header>
+    <h2>
+        Commentary
+    </h2>
+    <p>
+        In this section, calculations were performed based on the metrics specified above using the relevant
+        databases, and the results obtined were interpreted and visualized. All the work was done in Tableau Public,
+        and the script file used for this section can be found
+        <a
+                href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/blob/main/notebooks/Revenue_Metric_Analysis.ipynb"
+        >
+            here.
+        </a>
+    </p>
+    <h2>
+        Scripts
+    </h2>
+
+    <section class="analysis">
+        <h3>Script 1. </h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="tableau">
+// MRR
+{ FIXED MONTH([payment_date]), YEAR([payment_date]):
+  SUM(IF [revenue_amount_usd] > 0 THEN [revenue_amount_usd] ELSE 0 END) }
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/tableau/sheet1.png"
+                 style="max-height: 200px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 2. Calculating Paid Users </h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="tableau">
+// Paid Users Count
+{ FIXED MONTH([Payment Date]), YEAR([Payment Date]):
+  COUNTD([User Id]) }
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/tableau/sheet2.png"
+                 style="max-height: 200px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 3. Calculating Average Revenue Per Paid User (ARPPU) </h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="tableau">
+// ARPPU
+[MRR]/[Paid Users Count]
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/tableau/sheet3.png"
+                 style="max-height: 200px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 4. Calculating New Paid Users</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="tableau">
+// New Paid Users
+{ FIXED MONTH([payment_date]), YEAR([payment_date]):
+  COUNTD(IF [payment_date] = {FIXED [user_id]: MIN([payment_date])} THEN [user_id] END) }
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/tableau/sheet4.png"
+                 style="max-height: 200px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 5. Calculating New MRR</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="tableau">
+// New MRR
+{ FIXED MONTH([payment_date]), YEAR([payment_date]):
+  SUM(IF [payment_date] = {FIXED [user_id]: MIN([payment_date])} THEN [revenue_amount_usd] END) }
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/tableau/sheet5.png"
+                 style="max-height: 200px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 6. Calculating New MRR</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="tableau">
+// New MRR
+{ FIXED MONTH([payment_date]), YEAR([payment_date]):
+  SUM(IF [payment_date] = {FIXED [user_id]: MIN([payment_date])} THEN [revenue_amount_usd] END) }
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/tableau/sheet5.png"
+                 style="max-height: 200px; cursor: pointer;">
+        </div>
+    </section>
+
+</div>
+
+<!-- Modal -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        const span = document.getElementsByClassName("close")[0];
+
+        document.querySelectorAll(".queryImage").forEach(img => {
+            img.addEventListener("click", () => {
+                modal.style.display = "block";
+                modalImg.src = img.src;
+            });
+        });
+
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    });
+</script>
+
+<div class="modal" id="imageModal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+<script>
+    window.addEventListener("load", function () {
+        hljs.highlightAll();
+    });
+</script>
+</body>
+</html>
