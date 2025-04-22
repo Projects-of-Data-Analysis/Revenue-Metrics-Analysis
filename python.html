@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Python Analysis</title>
+    <link href="./css/styles.css" rel="stylesheet">
+    <!-- Highlight.js GitHub Dark Theme -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Python Analysis</h1>
+    </header>
+    <h2>
+        Commentary
+    </h2>
+    <p>
+        In this section, calculations were performed based on the metrics specified above using the relevant
+        databases, and the results obtined were interpreted and visualized. All the work was done in Jupyter Notebook,
+        and the script file used for this section can be found
+        <a
+                href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/blob/main/notebooks/Revenue_Metrics_Analysis.ipynb"
+        >
+            here
+        </a>.
+    </p>
+    <h2>
+        Scripts
+    </h2>
+
+    <section class="analysis">
+        <h3>Script 1. Import libraries</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+                </code></pre>
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 2. Set dark theme for plots</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+plt.style.use("dark_background")
+sns.set_palette("bright")
+                </code></pre>
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 3. Helper function to format plots</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+def format_plot(title, xlabel, ylabel):
+    plt.title(title, color='white', fontsize=14)
+    plt.xlabel(xlabel, color='white', fontsize=12)
+    plt.ylabel(ylabel, color='white', fontsize=12)
+    plt.legend(loc='best', fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.gca().tick_params(colors='white')
+                </code></pre>
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 4: Import games paid users data as users</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+users = pd.read_csv('../data/games_paid_users.csv')
+print(users.dtypes)
+print(users.head())
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script4.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 5: Import games paid users data as users</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+payments = pd.read_csv('../data/games_payments.csv')
+print(payments.dtypes)
+print(payments.head())
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script5.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 6: Convert payment_date to datetime</h3>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+payments['payment_date'] = pd.to_datetime(payments['payment_date'])
+payments['month'] = payments['payment_date'].dt.to_period('M').dt.to_timestamp()())
+                </code></pre>
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 7: Monthly Recurring Revenue (MRR)</h3>
+        <p>
+            Group payments by month and sum revenue to calculate MRR. The result is rounded to two decimals for
+            consistency.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+payments['payment_date'] = pd.to_datetime(payments['payment_date'])
+payments['month'] = payments['payment_date'].dt.to_period('M').dt.to_timestamp()())
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script7.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 8: Paid Users</h3>
+        <p>
+            Group payments by month and Count unique user_ids in the payments dataset to get the total number of paid
+            users.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+paid_users = payments.groupby('month')['user_id'].nunique().reset_index()
+print("Paid Users:", paid_users)
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script8.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 9: Average Revenue Per Paid User (ARPPU)</h3>
+        <p>
+            Group total revenue by month and divided by the number of monthly paid users to compute ARPPU, rounded to
+            two decimals.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+# Merge MRR and Paid Users by month
+monthly_data = pd.merge(mrr, paid_users, on='month')
+monthly_data.rename(columns={'revenue_amount_usd': 'monthly_revenue', 'user_id': 'paid_users'}, inplace=True)
+
+# Calculate ARPPU per month
+monthly_data['ARPPU'] = (monthly_data['monthly_revenue'] / monthly_data['paid_users']).round(2)
+
+print(monthly_data[['month', 'ARPPU']])
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script9.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 10: New Paid Users</h3>
+        <p>
+            Find the first payment date per user, group by month, and count to get new paid users per month.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+first_payments = payments.groupby('user_id')['payment_date'].min().reset_index()
+first_payments['month'] = first_payments['payment_date'].dt.to_period('M').dt.to_timestamp()
+new_paid_users = first_payments.groupby('month').size().reset_index(name='new_paid_users')
+print("New Paid Users:\n", new_paid_users)
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script10.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 11: New Monthly Recurring Revenue (MRR)</h3>
+        <p>
+            Merge payments with first payment months to filter new users’ payments, then sum revenue per month for new
+            MRR.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+new_users_payments = payments.merge(first_payments[['user_id', 'month']], on=['user_id', 'month'])
+new_mrr = new_users_payments.groupby('month')['revenue_amount_usd'].sum().round(2).reset_index(name='new_mrr')
+print("New MRR:\n", new_mrr)
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script11.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 12: Churned Users</h3>
+        <p>
+            Identify users active in one month but not the next by merging with a one-month offset, then count per
+            month.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+monthly_users = payments[['month', 'user_id']].drop_duplicates()
+monthly_users['next_month'] = monthly_users['month'] + pd.offsets.MonthBegin(1)
+churned = monthly_users.merge(monthly_users[['month', 'user_id']],
+                              left_on=['next_month', 'user_id'],
+                              right_on=['month', 'user_id'],
+                              how='left',
+                              suffixes=('', '_next'))
+churned = churned[churned['month_next'].isna()]
+churned_users = churned.groupby('month').size().reset_index(name='churned_users')
+print("Churned Users:\n", churned_users)
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script12.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 13: Churn Rate</h3>
+        <p>
+            Divide churned revenue by the previous month’s MRR to compute the revenue churn rate.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+paid_users_monthly = monthly_users.groupby('month').size().reset_index(name='paid_users_count')
+churn_rate = churned_users.merge(paid_users_monthly, on='month')
+churn_rate['prev_paid_users'] = churn_rate['paid_users_count'].shift(1)
+churn_rate['churn_rate'] = (churn_rate['churned_users'] / churn_rate['prev_paid_users']).round(4)
+print("Churn Rate:\n", churn_rate[['month', 'churn_rate']])
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script13.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 14: Churned Revenue</h3>
+        <p>
+            For churned users, sum their revenue from the previous month to calculate churned revenue.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+churned_revenue = churned.merge(payments, on=['user_id', 'month'])
+churned_revenue = churned_revenue.groupby('month')['revenue_amount_usd'].sum().round(2).reset_index(name='churned_revenue')
+print("Churned Revenue:\n", churned_revenue)
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script14.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 15: Revenue Churn Rate</h3>
+        <p>
+            Divide churned revenue by the previous month’s MRR to compute the revenue churn rate. </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+revenue_churn_rate = churned_revenue.merge(mrr, on='month')
+revenue_churn_rate['prev_mrr'] = revenue_churn_rate['revenue_amount_usd'].shift(1)
+revenue_churn_rate['revenue_churn_rate'] = (revenue_churn_rate['churned_revenue'] / revenue_churn_rate['prev_mrr']).round(4)
+print("Revenue Churn Rate:\n", revenue_churn_rate[['month', 'revenue_churn_rate']])
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script15.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 16: Expansion MRR</h3>
+        <p>
+            Calculate per-user revenue differences month-to-month, sum positive differences for expansion MRR.
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+user_monthly_revenue = payments.groupby(['user_id', 'month'])['revenue_amount_usd'].sum().reset_index()
+user_monthly_revenue['prev_revenue'] = user_monthly_revenue.groupby('user_id')['revenue_amount_usd'].shift(1)
+user_monthly_revenue['revenue_diff'] = user_monthly_revenue['revenue_amount_usd'] - user_monthly_revenue['prev_revenue']
+expansion_mrr = user_monthly_revenue[user_monthly_revenue['revenue_diff'] > 0].groupby('month')['revenue_diff'].sum().round(2).reset_index(name='expansion_mrr')
+print("Expansion MRR:\n", expansion_mrr)
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script16.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 17: Contraction MRR</h3>
+        <p>
+            Sum the absolute value of negative revenue differences to calculate contraction MRR.
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+neg_diff = user_monthly_revenue[user_monthly_revenue['revenue_diff'] < 0]
+contraction_mrr = neg_diff.groupby('month')['revenue_diff'].sum().abs().round(2).reset_index()
+contraction_mrr.rename(columns={'revenue_diff': 'contraction_mrr'}, inplace=True)
+print("Contraction MRR:\n", contraction_mrr)
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script17.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 18:Customer Lifetime (LT)</h3>
+        <p>
+            Calculate the duration between each user’s first and last payment, then average to get lifetime in days.
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+user_periods = payments.groupby('user_id').agg({'payment_date': ['min', 'max']}).reset_index()
+user_periods.columns = ['user_id', 'first_payment', 'last_payment']
+user_periods['lifetime_days'] = (user_periods['last_payment'] - user_periods['first_payment']).dt.days
+customer_lt = user_periods['lifetime_days'].mean().round(2)
+print("Customer Lifetime (days):", customer_lt)
+                </code></pre>
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 19:Customer Lifetime Value (LTV)</h3>
+        <p>
+            Sum revenue per user and average across all users to compute LTV.
+        <div class="code-image-container">
+                <pre class="code"><code class="python">
+user_periods = payments.groupby('user_id').agg({'payment_date': ['min', 'max']}).reset_index()
+user_periods.columns = ['user_id', 'first_payment', 'last_payment']
+user_periods['lifetime_days'] = (user_periods['last_payment'] - user_periods['first_payment']).dt.days
+customer_lt = user_periods['lifetime_days'].mean().round(2)
+print("Customer Lifetime (days):", customer_lt)
+                </code></pre>
+        </div>
+    </section>
+
+    <h2>
+        Visualizations
+    </h2>
+
+    <section class="analysis">
+        <h3>Script 20: Plot MRR, Expansion MRR, Contraction MRR</h3>
+        <div class="code-image-container">
+            <pre class="code"><code class="python">
+user_monthly_revenue = payments.groupby(['user_id', 'month'])['revenue_amount_usd'].sum().reset_index()
+user_monthly_revenue['prev_revenue'] = user_monthly_revenue.groupby('user_id')['revenue_amount_usd'].shift(1)
+user_monthly_revenue['revenue_diff'] = user_monthly_revenue['revenue_amount_usd'] - user_monthly_revenue['prev_revenue']
+expansion_mrr = user_monthly_revenue[user_monthly_revenue['revenue_diff'] > 0].groupby('month')['revenue_diff'].sum().round(2).reset_index(name='expansion_mrr')
+print("Expansion MRR:\n", expansion_mrr)
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script20.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 21: Paid Users and New Paid Users</h3>
+        <div class="code-image-container">
+            <pre class="code"><code class="python">
+plt.figure(figsize=(12, 6))
+plt.plot(paid_users_monthly['month'], paid_users_monthly['paid_users_count'], label='Paid Users', linewidth=2)
+plt.plot(new_paid_users['month'], new_paid_users['new_paid_users'], label='New Paid Users', linestyle='--')
+format_plot('Paid Users and New Paid Users Over Time', 'Month', 'Count')
+plt.show()
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script21.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 22: Churn Rate and Revenue Churn Rate</h3>
+        <div class="code-image-container">
+            <pre class="code"><code class="python">
+plt.figure(figsize=(12, 6))
+plt.plot(churn_rate['month'], churn_rate['churn_rate'], label='Churn Rate', linewidth=2)
+plt.plot(revenue_churn_rate['month'], revenue_churn_rate['revenue_churn_rate'], label='Revenue Churn Rate', linestyle='--')
+format_plot('Churn Metrics Over Time', 'Month', 'Rate')
+plt.show()
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script22.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h3>Script 23:Churned Users and Churned Revenue</h3>
+        <div class="code-image-container">
+            <pre class="code"><code class="python">
+plt.figure(figsize=(12, 6))
+plt.plot(churned_users['month'], churned_users['churned_users'], label='Churned Users', linewidth=2)
+plt.plot(churned_revenue['month'], churned_revenue['churned_revenue'], label='Churned Revenue', linestyle='--')
+format_plot('Churned Users and Revenue Over Time', 'Month', 'Value')
+plt.show()
+                </code></pre>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script23.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+</div>
+
+<!-- Modal -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        const span = document.getElementsByClassName("close")[0];
+
+        document.querySelectorAll(".queryImage").forEach(img => {
+            img.addEventListener("click", () => {
+                modal.style.display = "block";
+                modalImg.src = img.src;
+            });
+        });
+
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    });
+</script>
+
+<div class="modal" id="imageModal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+</body>
+</html>
