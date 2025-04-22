@@ -135,41 +135,305 @@ ORDER BY payment_month;
         </div>
     </section>
 
-
     <section class="analysis">
-        <h2>Query 4: Calculating Average Revenue Per Paid User (ARPPU)</h2>
-        <p>This process utilized CTEs (Common Table Expressions). The MRR data was obtained in the first CTE, while in
-            the second CTE, the number of paying users was determined. Subsequently, the ARPPU value was calculated.<br>
-            Upon examining the obtained data, it was observed that the ARPPU value reached its lowest point in January
-            (34.663) and its highest point in February (49.320). It exhibited a relatively stable trend for the
-            remainder of the year, fluctuating between 43 and 46.
+        <h2>Query 5: New Paid Users</h2>
+        <p>For this process, CTEs were utilized again to determine the number of new players registered in the
+            relevant month. <br>
+            When examining the results, no clear pattern is observed, while the number of new player registrations has
+            shown a decline on a yearly basis.
         </p>
         <div class="code-image-container">
                 <pre class="code"><code class="language-sql">
-WITH mrr AS (
+WITH first_payments AS (
     SELECT
-        DATE_TRUNC('month', payment_date) AS payment_month,
-        SUM(revenue_amount_usd) AS mrr
+        user_id,
+        MIN(DATE_TRUNC('month', payment_date)) AS first_payment_month
     FROM games_payments
-    GROUP BY DATE_TRUNC('month', payment_date)
-),
-paid_users AS (
+    GROUP BY user_id
+)
+SELECT
+    first_payment_month AS payment_month,
+    COUNT(DISTINCT user_id) AS new_paid_users
+FROM first_payments
+GROUP BY first_payment_month
+ORDER BY payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query5.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 6: New MRR</h2>
+        <p>For this process, CTEs were again utilized, and the revenue generated from new players registering in the
+            relevant month was calculated.<br>
+            When examining the results, similar to the previous query, no clear pattern is observed, but a decreasing
+            trend in revenue from new players is noted throughout the year.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+WITH first_payments AS (
+    SELECT
+        user_id,
+        MIN(DATE_TRUNC('month', payment_date)) AS first_payment_month
+    FROM games_payments
+    GROUP BY user_id
+)
+SELECT
+    fp.first_payment_month AS payment_month,
+    SUM(gp.revenue_amount_usd) AS new_mrr
+FROM first_payments fp
+JOIN games_payments gp
+    ON fp.user_id = gp.user_id
+    AND fp.first_payment_month = DATE_TRUNC('month', gp.payment_date)
+GROUP BY fp.first_payment_month
+ORDER BY payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query6.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 7: Churned Users</h2>
+        <p>To determine the number of players who stopped making payments within a one-month period, the difference in
+            player counts between the examined period and the previous period was utilized. A <code>LEFT JOIN</code>
+            function was employed for this process. <br>
+            Upon examining the results, an increase in the number of players abandoning the game each month was
+            observed. When reviewing the relevant graph, a significant spike is noted in the most
+            recent data. However, since this pertains to the last month's data, it appears this way due to a calculation
+            error and should not be considered in the evaluation.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+WITH monthly_users AS (
+    SELECT DISTINCT
+        user_id,
+        DATE_TRUNC('month', payment_date) AS payment_month
+    FROM games_payments
+)
+SELECT
+    (mu1.payment_month + interval '1 month') AS payment_month,
+    COUNT(DISTINCT mu1.user_id) AS churned_users
+FROM monthly_users mu1
+LEFT JOIN monthly_users mu2
+    ON mu1.user_id = mu2.user_id
+    AND (mu1.payment_month + interval '1 month') = mu2.payment_month
+WHERE mu2.user_id IS NULL
+GROUP BY (mu1.payment_month + interval '1 month')
+ORDER BY payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query7.png"
+                 style="max-height: 300px; cursor: pointer;">
+
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 8: Churned Rate</h2>
+        <p>TTo calculate the churn rate, which represents the revenue loss due to users abandoning the game within a
+            one-month period as a ratio of the total revenue from the previous month, the <code>LEFT JOIN</code>
+            function was utilized, as in the previous query.<br>
+            Upon examining the results, the churn rate generally shows a flat trend
+            throughout the year, with a significant increase observed in the last two months of the year.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+WITH paid_users AS (
     SELECT
         DATE_TRUNC('month', payment_date) AS payment_month,
         COUNT(DISTINCT user_id) AS paid_users
     FROM games_payments
     GROUP BY DATE_TRUNC('month', payment_date)
+),
+churned AS (
+    SELECT
+        (mu1.payment_month + interval '1 month') AS payment_month,
+        COUNT(DISTINCT mu1.user_id) AS churned_users
+    FROM (SELECT DISTINCT user_id, DATE_TRUNC('month', payment_date) AS payment_month FROM games_payments) mu1
+    LEFT JOIN (SELECT DISTINCT user_id, DATE_TRUNC('month', payment_date) AS payment_month FROM games_payments) mu2
+        ON mu1.user_id = mu2.user_id
+        AND (mu1.payment_month + interval '1 month') = mu2.payment_month
+    WHERE mu2.user_id IS NULL
+    GROUP BY (mu1.payment_month + interval '1 month')
 )
 SELECT
-    mrr.payment_month,
-    round(mrr.mrr / NULLIF(paid_users.paid_users, 0), 3) AS arppu
-FROM mrr
-JOIN paid_users ON mrr.payment_month = paid_users.payment_month
+    churned.payment_month,
+    churned.churned_users::float / NULLIF(LAG(paid_users.paid_users) OVER (ORDER BY churned.payment_month), 0) AS churn_rate
+FROM churned
+JOIN paid_users ON churned.payment_month = paid_users.payment_month
+ORDER BY churned.payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query8.png"
+                 style="max-height: 300px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 9: Churned Revenue</h2>
+        <p>
+            In the study examining the total revenue decrease due to users who stopped making payments within a
+            one-month period, the structure from previous queries was further developed and utilized. <br>
+            Results similar to those obtained in the churned users query were achieved, and the last data point in the
+            graph should not be considered in the evaluation.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+WITH monthly_users AS (
+    SELECT DISTINCT
+        user_id,
+        DATE_TRUNC('month', payment_date) AS payment_month
+    FROM games_payments
+),
+churned AS (
+    SELECT
+        (mu1.payment_month + interval '1 month') AS payment_month,
+        mu1.user_id
+    FROM monthly_users mu1
+    LEFT JOIN monthly_users mu2
+        ON mu1.user_id = mu2.user_id
+        AND (mu1.payment_month + interval '1 month') = mu2.payment_month
+    WHERE mu2.user_id IS NULL
+)
+SELECT
+    churned.payment_month,
+    SUM(gp.revenue_amount_usd) AS churned_revenue
+FROM churned
+JOIN games_payments gp
+    ON churned.user_id = gp.user_id
+    AND DATE_TRUNC('month', gp.payment_date) = (churned.payment_month - interval '1 month')
+GROUP BY churned.payment_month
+ORDER BY churned.payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query9.png"
+                 style="max-height: 300px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 10: Revenue Churned Rate</h2>
+        <p>
+
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query10.png"
+                 style="max-height: 300px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 11: Expansion MRR</h2>
+        <p>
+            In this query, which calculates the revenue increase due to the rising monthly payment amounts from users
+            already paying for the game, a general upward trend is observed throughout the year, although it is not
+            entirely consistent.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+WITH monthly_revenue AS (
+    SELECT
+        user_id,
+        DATE_TRUNC('month', payment_date) AS payment_month,
+        SUM(revenue_amount_usd) AS monthly_revenue
+    FROM games_payments
+    GROUP BY user_id, DATE_TRUNC('month', payment_date)
+),
+lagged_revenue AS (
+    SELECT
+        user_id,
+        payment_month,
+        monthly_revenue,
+        COALESCE(LAG(monthly_revenue) OVER (PARTITION BY user_id ORDER BY payment_month), 0) AS prev_month_revenue
+    FROM monthly_revenue
+)
+SELECT
+    payment_month,
+    COALESCE(SUM(CASE
+        WHEN monthly_revenue > prev_month_revenue
+        THEN monthly_revenue - prev_month_revenue
+        ELSE 0
+    END), 0) AS expansion_mrr
+FROM lagged_revenue
+GROUP BY payment_month
 ORDER BY payment_month;
                 </code></pre>
-            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query4.png"
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query11.png"
                  style="max-height: 300px; cursor: pointer;">
+        </div>
+    </section>
 
+    <section class="analysis">
+        <h2>Query 12: Contraction MRR</h2>
+        <p>
+            In this query, which examines the revenue decrease due to the reduction in monthly payment amounts from
+            users already paying for the game, an increase in revenue reduction is observed on an annual basis.
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+WITH monthly_revenue AS (
+    SELECT
+        user_id,
+        DATE_TRUNC('month', payment_date) AS payment_month,
+        SUM(revenue_amount_usd) AS monthly_revenue
+    FROM games_payments
+    GROUP BY user_id, DATE_TRUNC('month', payment_date)
+),
+lagged_revenue AS (
+    SELECT
+        user_id,
+        payment_month,
+        monthly_revenue,
+        COALESCE(LAG(monthly_revenue) OVER (PARTITION BY user_id ORDER BY payment_month), 0) AS prev_month_revenue
+    FROM monthly_revenue
+)
+SELECT
+    payment_month,
+    COALESCE(SUM(CASE
+        WHEN monthly_revenue < prev_month_revenue
+        THEN prev_month_revenue - monthly_revenue
+        ELSE 0
+    END), 0) AS contraction_mrr
+FROM lagged_revenue
+GROUP BY payment_month
+ORDER BY payment_month;
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query12.png"
+                 style="max-height: 300px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 13: Customer LifeTime (LT)</h2>
+        <p>
+
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+
+
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query13.png"
+                 style="max-height: 300px; cursor: pointer;">
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>Query 14: Customer LifeTime Value (LTV)</h2>
+        <p>
+
+        </p>
+        <div class="code-image-container">
+                <pre class="code"><code class="language-sql">
+
+
+                </code></pre>
+            <img alt="SQL Query Result" class="queryImage" src="./images/sql/query14.png"
+                 style="max-height: 300px; cursor: pointer;">
         </div>
     </section>
 
