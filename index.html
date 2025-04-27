@@ -16,36 +16,21 @@
         <p>Based on data obtained from a company operating in the gaming industry, this study aims to analyze the
             company’s cash flows.<br>
             <br>
-            This process will be carried out in three stages. First, various queries will be performed in PostgreSQL
-            to examine the values of different metrics and to gain a full understanding of the data. In the second
-            stage, the data will be evaluated based on predefined metrics in a Python environment, and visualizations
-            will be created. In the final stage, the results will be visualized in Tableau, and a dashboard will be
-            developed.
+            In this context, the files <code>games_paid_users.csv</code>, which contains information about registered
+            users, and <code>games_payment.csv</code>, which contains information about users' payments, have been
+            provided. The columns and their contents in the files are given below.
         </p>
 
         <!-- Data Structure -->
-        <h2>Sampla Data Structure</h2>
+        <h3>Sampla Data Structure</h3>
         <p>
-            1<sup>st</sup> Data Set: games_paid_users.csv
-        </p>
-        <div class="button-container">
-            <a
-                    class="btn"
-                    href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/raw/main/data/games_paid_users.csv"
-            >
-                Download CSV File
-            </a>
-            <a
-                    class="btn"
-                    href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/tree/main/data/games_paid_users.csv"
-                    rel="noopener noreferrer"
-                    target="_blank"
-            >
-                Open in GitHub
-            </a>
-        </div>
-        <br>
-        <br>
+            1<sup>st</sup> Data Set: games_paid_users.csv <a
+                href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/tree/main/data/games_paid_users.csv"
+                rel="noopener noreferrer"
+                target="_blank"
+        >
+            Open in GitHub
+        </a>
         <table class="data-table">
             <thead>
             <tr>
@@ -101,28 +86,15 @@
             </tbody>
         </table>
 
-
         <p>
-            2<sup>nd</sup> Data Set: games_payments.csv
+            2<sup>nd</sup> Data Set: games_payments.csv <a
+                href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/tree/main/data/games_payments.csv"
+                rel="noopener noreferrer"
+                target="_blank"
+        >
+            Open in GitHub
+        </a>
         </p>
-        <div class="button-container">
-            <a
-                    class="btn"
-                    href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/raw/main/data/games_payments.csv"
-            >
-                Download CSV File
-            </a>
-            <a
-                    class="btn"
-                    href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/tree/main/data/games_payments.csv"
-                    rel="noopener noreferrer"
-                    target="_blank"
-            >
-                Open in GitHub
-            </a>
-        </div>
-        <br>
-        <br>
         <table class="data-table">
             <thead>
             <tr>
@@ -177,6 +149,8 @@
             </tr>
             </tbody>
         </table>
+
+        <p>Upon examining the obtained data, it has been decided to calculate and analyze the following metrics.</p>
 
         <!-- Metrics -->
         <h2>Metrics to be Used</h2>
@@ -230,10 +204,18 @@
                 throughout their entire usage of the product, i.e., the total revenue earned from an average user.
             </li>
         </ol>
+
+        <br>
+        <p>The study was conducted in two main phases. The first phase involved cleaning and organizing the data in a
+            Python environment to calculate the determined metrics. The second phase involved the calculation of the
+            metrics, which was carried out in three sub-phases. First, calculations were performed in an SQL
+            environment. Second, calculations were conducted in a Python environment. Finally, using Tableau, the
+            necessary calculations were made, and the results were visualized.</p>
     </section>
-    <br><br><br>
+    <br>
     <!-- Buttons-->
     <section class="buttons">
+        <a class="btn" href="cleaning.html">Preparing Data</a>
         <a class="btn" href="sql.html">SQL Analysis</a>
         <a class="btn" href="python.html">Python Analysis</a>
         <a class="btn" href="tableau.html">Tableau Analysis</a>
