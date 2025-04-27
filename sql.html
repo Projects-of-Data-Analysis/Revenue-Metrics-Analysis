@@ -346,7 +346,7 @@ ORDER BY
                 <pre class="code"><code class="language-sql">
 SELECT
 	payment_month,
-	SUM(total_revenue - total_revenue_previous) AS contraction_mrr
+	ROUND(SUM(total_revenue - total_revenue_previous)) AS contraction_mrr
 FROM
 	final_games_dataset
 WHERE
@@ -362,7 +362,7 @@ ORDER BY
                  style="max-height: 300px; cursor: pointer;">
         </div>
     </section>
-    
+
 </div>
 
 <!-- Modal -->

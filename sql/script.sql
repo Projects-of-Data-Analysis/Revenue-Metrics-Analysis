@@ -182,7 +182,7 @@ ORDER BY
 -- Query 12. Contraction MRR
 SELECT
 	payment_month,
-	SUM(total_revenue - total_revenue_previous) AS contraction_mrr
+	ROUND(SUM(total_revenue - total_revenue_previous)) AS contraction_mrr
 FROM
 	final_games_dataset
 WHERE
