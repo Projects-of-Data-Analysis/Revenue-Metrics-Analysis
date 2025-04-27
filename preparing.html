@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>SQL Analysis</title>
+    <link href="./css/styles.css" rel="stylesheet">
+    <!-- Prism.js CSS for syntax highlighting
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-vsc-dark-plus.min.css" rel="stylesheet"/>
+     -->
+    <!-- Highlight.js GitHub Dark Theme -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<header>
+    <h1>Preparing of Data for Analysis</h1>
+</header>
+<h2>
+    Commentary
+</h2>
+<p>
+    All the work in this section was performed in a Python (Jupyter Notebook) environment.<br><br>
+    Upon examining the obtained data, it was observed that the <code>payment_date</code> data in the <code>users_payment.csv</code> file was not defined as a date but instead as a string.<br><br>
+    Furthermore, while metrics such as MRR, Paid Users, ARPPU, New Paid Users, and New MRR can be calculated with the available information, it was determined that calculating metrics like Churn Users, Churn Rate, Expansion MRR, and Contraction MRR requires preprocessing.<br><br>
+    In this context, the operations performed are explained step by step and Jupyter Notebook file used for this section can be found
+    <a
+            href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/blob/main/notebooks/Calculate_metrics.ipynb"
+    >
+        here
+    </a>.
+</p>
+<h2>
+    Scripts
+</h2>
+
+<section class="analysis">
+    <h3>Script 1. Import libraries</h3>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 2. Load datasets</h3>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+games_paid_users = pd.read_csv('games_paid_users.csv')
+games_payments = pd.read_csv('games_payments.csv')
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 3. Convert payment_date to datetime</h3>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+games_payments['payment_date'] = pd.to_datetime(games_payments['payment_date'])
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 4. Add payment_month</h3>
+    <p>
+        The <code>payment_date</code> data provided in the database was given as a string in the YYYY-MM-DD format and was converted to a datetime format in the previous step. Since the calculations in this study will be performed on a monthly basis, all date data has been transformed to the first day of the month, and the resulting new data has been saved in a column named.
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+games_payments['payment_month'] = games_payments['payment_date'].values.astype('datetime64[M]')
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 5. Aggregate payments per user/game/month</h3>
+    <p>
+        The payments made by each user for each game within the considered month were summed and initially assigned to a column named <code>monthly_revenue</code>. Subsequently, this data was assigned to the <code>revenue_amount_usd</code> column, and the column was renamed to <code>total_revenue</code>. This ensured that the structure of the dataset remained intact.
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+monthly_revenue = games_payments.groupby(['user_id', 'game_name', 'payment_month'], as_index=False)[
+    'revenue_amount_usd'].sum()
+monthly_revenue.rename(columns={'revenue_amount_usd': 'total_revenue'}, inplace=True)
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 6. Aggregate payments per user/game/month</h3>
+    <p>
+        Upon examining the dataset, it was determined that users made payments in some months, made a single payment in some months, and made multiple payments in others. To standardize users with multiple payments, the <code>payment_month</code> data was created in a previous step. To calculate metrics such as missing payment data (e.g., churn, etc.), a calendar was created spanning from the first payment date to the last payment date in the dataset.
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+min_month = monthly_revenue['payment_month'].min()
+max_month = monthly_revenue['payment_month'].max()
+all_months = pd.date_range(min_month, max_month, freq='MS')
+
+unique_users_games = monthly_revenue[['user_id', 'game_name']].drop_duplicates()
+calendar = unique_users_games.assign(key=1).merge(pd.DataFrame({'payment_month': all_months, 'key': 1}), on='key').drop(
+    'key', axis=1)
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 7. Merge to fill in missing months with zero revenue</h3>
+    <p>
+        The obtained calendar dataset was populated with the <code>user_id, game_name</code> and <code>payment_month</code> data from the existing dataset, and cells in <code>payment_month</code> with no data were assigned a value of 0.
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+full_data = calendar.merge(monthly_revenue, on=['user_id', 'game_name', 'payment_month'], how='left')
+full_data['total_revenue'] = full_data['total_revenue'].fillna(0)
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 8. Sort for further processing</h3>
+    <p>
+        The dataset at hand has been sorted based on the <code>user_id, game_name</code> and <code>payment_month</code> columns, respectively.
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+full_data = full_data.sort_values(by=['user_id', 'game_name', 'payment_month'])
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 9. Add total_revenue_previous</h3>
+    <p>
+        To calculate metrics such as Churn, Expansion MRR, and Contraction MRR, information about whether a payment was made in the previous month is required. In this context, a column named <code>total_revenue_previous</code> was created, and the payment information from the previous month was transferred to this column.
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">ir
+full_data['total_revenue_previous'] = full_data.groupby(['user_id', 'game_name'])['total_revenue'].shift(1).fillna(0)
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 10. Add status</h3>
+    <p>
+        To facilitate the calculations, a status column was created to determine the current <code>status</code> of users. In this column, users are defined as follows:<br>
+
+        Users making a payment for the first time: <strong>new</strong><br>
+        Users who made a payment this month and also made a payment in the previous month: <strong>active</strong><br>
+        Users who made a payment this month but did not make a payment in the previous month: <strong>back</strong><br>
+        Users who did not make a payment this month but made a payment in the previous month: <strong>churn</strong><br>
+        Users who did not make a payment this month and also did not make a payment in the previous month: <strong>deactive</strong>
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+def determine_status(row):
+    if row['total_revenue'] > 0:
+        if row['total_revenue_previous'] == 0:
+            # Check first payment
+            user_game_payments = full_data[
+                (full_data['user_id'] == row['user_id']) &
+                (full_data['game_name'] == row['game_name']) &
+                (full_data['payment_month'] < row['payment_month'])
+                ]
+            if user_game_payments['total_revenue'].sum() == 0:
+                return 'new'
+            return 'back'
+        return 'active'
+    else:
+        if row['total_revenue_previous'] > 0:
+            return 'churn'
+        return 'deactive'
+
+
+full_data['status'] = full_data.apply(determine_status, axis=1)
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 11. Add status</h3>
+    <p>
+        Finally, the <code>user_id</code> and <code>game_name</code> columns in the <code>full_data</code> and <code>games_paid_users</code> datasets were converted to string format. This ensured that potential errors due to differences in data types were avoided during the merging of these datasets. Subsequently, the columns present in the <code>games_paid_users</code> dataset but absent in the <code>full_data</code> dataset were identified, and these missing columns were added to the <code>full_data</code>.
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+full_data[['user_id', 'game_name']] = full_data[['user_id', 'game_name']].astype(str)
+games_paid_users[['user_id', 'game_name']] = games_paid_users[['user_id', 'game_name']].astype(str)
+
+missing_cols = games_paid_users.columns.difference(full_data.columns)
+full_data = full_data.merge(games_paid_users[missing_cols.tolist() + ['user_id', 'game_name']] on=['user_id', 'game_name'], how='left')
+                </code></pre>
+    </div>
+</section>
+
+<section class="analysis">
+    <h3>Script 12. Save to CSV</h3>
+    <p>
+        The obtained <code>full_data</code> dataset has been saved as <code>final_game_dataset.csv</code> for use in other studies.
+    </p>
+    <div class="code-image-container">
+                <pre class="code"><code class="python">
+full_data.to_csv('final_games_dataset.csv', index=False)
+                </code></pre>
+    </div>
+</section>
+
+
+</body>
