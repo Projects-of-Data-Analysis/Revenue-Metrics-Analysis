@@ -13,47 +13,47 @@
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1>Python Analysis</h1>
-        </header>
-        <h2>
-            Commentary
-        </h2>
-        <p>
-            In this section, calculations were performed based on the metrics specified above using the relevant databases, and the results obtined were interpreted and visualized. All the work was done in Jupyter Notebook, and the script file used for this section can be found
-            <a href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/blob/main/notebooks/Revenue_Metric_Analysis.ipynb">
-                here.
-            </a>
-        </p>
-        <h2>
-            Scripts
-        </h2>
+<div class="container">
+    <header>
+        <h1>Python Analysis</h1>
+    </header>
+    <h2>
+        Commentary
+    </h2>
+    <p>
+        In this section, calculations were performed based on the metrics specified above using the relevant databases, and the results obtained were interpreted and visualized. All the work was done in Jupyter Notebook, and the script file used for this section can be found
+        <a href="https://github.com/Projects-of-Data-Analysis/Revenue-Metrics-Analysis/blob/main/notebooks/Revenue_Metric_Analysis.ipynb">
+            here.
+        </a>
+    </p>
+    <h2>
+        Scripts
+    </h2>
 
-        <section class="analysis">
-            <h3>Script 1. Import libraries</h3>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 1. Import libraries</h3>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
                 </code></pre>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 2. Set dark theme for plots</h3>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 2. Set dark theme for plots</h3>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 plt.style.use("dark_background")
 sns.set_palette("bright")
                 </code></pre>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 3. Helper function to format plots</h3>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 3. Helper function to format plots</h3>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 def format_plot(title, xlabel, ylabel):
     plt.title(title, color='white', fontsize=14)
@@ -63,33 +63,33 @@ def format_plot(title, xlabel, ylabel):
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.gca().tick_params(colors='white')
                 </code></pre>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 4: Import games paid users data as users</h3>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 4: Import games paid users data as users</h3>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 df = pd.read_csv('../data/final_games_dataset.csv')
-print(users.dtypes)
-print(users.head())
+print(df.dtypes)
+print(df.head())
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script4.png" style="max-height: 300px; cursor: pointer;">
-            </div>
-        </section>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script4.png" style="max-height: 300px; cursor: pointer;">
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 5: Convert payment_date to datetime</h3>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 5: Convert payment_date to datetime</h3>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 df['payment_month'] = pd.to_datetime(df['payment_month'])
                 </code></pre>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 6: Calculating Monthly Recurring Revenue</h3>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 6: Calculating Monthly Recurring Revenue</h3>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 mrr = df[df['status'].isin(['active', 'back','new'])].groupby(df['payment_month'].dt.strftime('%Y-%m'))['total_revenue'].sum()
 print("MRR:\n", mrr)
@@ -98,14 +98,14 @@ plt.bar(mrr.index, mrr.values, label='MRR', width=.4)
 format_plot('Monthly Recurring Revenue (MRR) Over Time', 'Month', 'MRR')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script6.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script6.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 7: Calculating Paid Users</h3>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 7: Calculating Paid Users</h3>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 paid_users = df[df['total_revenue'] > 0].groupby(df['payment_month'].dt.strftime('%Y-%m'))['user_id'].nunique()
 print("Paid Users:\n", paid_users)
@@ -114,17 +114,17 @@ plt.bar(paid_users.index, paid_users.values, label='Paid Users', width=.4)
 format_plot('Paid Users Over Time', 'Month', 'Paid Users')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script7.png" style="max-height: 300px; cursor: pointer;">
-            </div>
-        </section>
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script7.png" style="max-height: 300px; cursor: pointer;">
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 8: Calculating Average Revenue Per Paid User (ARPPU)</h3>
-            <p>
-                Group payments by month and sum revenue to calculate MRR. The result is rounded to two decimals for
-                consistency.
-            </p>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 8: Calculating Average Revenue Per Paid User (ARPPU)</h3>
+        <p>
+            Group payments by month and sum revenue to calculate MRR. The result is rounded to two decimals for
+            consistency.
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 arppu = (mrr / paid_users).round(2)
 print("ARPPU:\n", arppu)
@@ -133,17 +133,17 @@ plt.bar(arppu.index, arppu.values, label='ARPPU', width=.4)
 format_plot('Average Revenue Per Paid User (ARPPU) Over Time', 'Month', 'ARPPU')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script8.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script8.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 9: Calculating New Paid Users</h3>
-            <p>
-                Find the first payment date per user, group by month, and count to get new paid users per month.
-            </p>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 9: Calculating New Paid Users</h3>
+        <p>
+            Find the first payment date per user, group by month, and count to get new paid users per month.
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 new_paid_users = df[(df['status'] == 'new') & (df['total_revenue'] > 0)].groupby(df['payment_month'].dt.strftime('%Y-%m'))['user_id'].nunique()
 print("Paid Users:", new_paid_users)
@@ -152,17 +152,17 @@ plt.bar(new_paid_users.index, new_paid_users.values, label='Paid Users', width=.
 format_plot('New Paid Users', 'Month', 'New Paid Users')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script9.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script9.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 10: Calculating New MRR</h3>
-            <p>
-                Find the first payment date per user, group by month, and sum to get new MRR per month.
-            </p>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 10: Calculating New MRR</h3>
+        <p>
+            Find the first payment date per user, group by month, and sum to get new MRR per month.
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 new_mrr = df[(df['status'] == 'new') & (df['total_revenue'] > 0)].groupby(df['payment_month'].dt.strftime('%Y-%m'))['total_revenue'].sum().round(2)
 print('New MRR:\n', new_mrr)
@@ -171,17 +171,17 @@ plt.bar(new_mrr.index, new_mrr.values, label='New MRR', width=.4)
 format_plot('New Monthly Recurring Revenue (MRR)', 'Month', 'USD')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script10.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script10.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 11: Calculating Churned Users</h3>
-            <p>
-                Find the last payment date per user, group by month, and count to get churned users per month.
-            </p>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 11: Calculating Churned Users</h3>
+        <p>
+            Find the last payment date per user, group by month, and count to get churned users per month.
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 churned_users = df[df['status'] == 'churn'].groupby(df['payment_month'].dt.strftime('%Y-%m'))['user_id'].nunique()
 print("Churned Users:\n", churned_users)
@@ -190,17 +190,17 @@ plt.bar(churned_users.index, churned_users.values, label='Churned Users', width=
 format_plot('Churned Users Over Time', 'Month', 'Churned Users')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script11.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script11.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 12: Calculating Churned Rate</h3>
-            <p>
+    <section class="analysis">
+        <h3>Script 12: Calculating Churned Rate</h3>
+        <p>
 
-            </p>
-            <div class="code-image-container">
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 paid_users_shifted = paid_users.shift(1)
 churn_rate = (churned_users / paid_users_shifted).round(2)
@@ -210,17 +210,17 @@ plt.bar(churn_rate.index, churn_rate.values, label='Churn Rate', width=.4)
 format_plot('Churn Rate Over Time', 'Month', 'Churn Rate')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script12.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script12.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 13: Calculating Churned Revenue</h3>
-            <p>
+    <section class="analysis">
+        <h3>Script 13: Calculating Churned Revenue</h3>
+        <p>
 
-            </p>
-            <div class="code-image-container">
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 churned_revenue = df[df['status'] == 'churn'].groupby(df['payment_month'].dt.strftime('%Y-%m'))['total_revenue_previous'].sum().round(2)
 print("Churned Revenue:\n", churned_revenue)
@@ -229,16 +229,16 @@ plt.bar(churned_revenue.index, churned_revenue.values, label='Churned Revenue', 
 format_plot('Churned Revenue Over Time', 'Month', 'USD')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script13.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script13.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 14: Revenue Churned Rate</h3>
-            <p>
-            </p>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 14: Revenue Churned Rate</h3>
+        <p>
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 mrr_shifted = mrr.shift(1)
 revenue_churn_rate = (churned_revenue / mrr_shifted).round(2)
@@ -248,17 +248,17 @@ plt.bar(revenue_churn_rate.index, revenue_churn_rate.values, label='Revenue Chur
 format_plot('Revenue Churn Rate Over Time', 'Month', 'Rate')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script14.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script14.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 15: Calculating Expension MRR</h3>
-            <p>
-                For churned users, sum their revenue from the previous month to calculate churned revenue.
-            </p>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 15: Calculating Expension MRR</h3>
+        <p>
+            For churned users, sum their revenue from the previous month to calculate churned revenue.
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 expansion_mrr = df[(df['status'] == 'active') & (df['total_revenue'] > df['total_revenue_previous'])].groupby(df['payment_month'].dt.strftime('%Y-%m')).apply(lambda x: (x['total_revenue'] - x['total_revenue_previous']).sum()).round(2)
 print("Expansion MRR:\n", expansion_mrr)
@@ -267,61 +267,61 @@ plt.bar(expansion_mrr.index, expansion_mrr.values, label='Expansion MRR', width=
 format_plot('Expansion MRR Over Time', 'Month', 'USD')
 plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script15.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script15.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="analysis">
-            <h3>Script 16: Calculating Contraction MRR</h3>
-            <p>
-            </p>
-            <div class="code-image-container">
+    <section class="analysis">
+        <h3>Script 16: Calculating Contraction MRR</h3>
+        <p>
+        </p>
+        <div class="code-image-container">
                 <pre class="code"><code class="python">
 contraction_mrr = df[(df['status'] == 'active') & (df['total_revenue'] < df['total_revenue_previous'])].groupby(df['payment_month'].dt.strftime('%Y-%m')).apply(lambda x: (x['total_revenue'] - x['total_revenue_previous']).sum()) print("Contraction MRR:\n", contraction_mrr) plt.figure(figsize=(12, 6)) plt.bar(contraction_mrr.index, contraction_mrr.values, label='Contraction MRR' , width=.4) format_plot('Contraction MRR Over Time', 'Month' , 'USD' ) plt.show()
                 </code></pre>
-                <img alt="Python Script Result" class="queryImage" src="./images/python/script16.png" style="max-height: 300px; cursor: pointer;">
+            <img alt="Python Script Result" class="queryImage" src="./images/python/script16.png" style="max-height: 300px; cursor: pointer;">
 
-            </div>
-        </section>
+        </div>
+    </section>
 
-    </div>
+</div>
 
-    <!-- Modal -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("modalImg");
-            const span = document.getElementsByClassName("close")[0];
+<!-- Modal -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        const span = document.getElementsByClassName("close")[0];
 
-            document.querySelectorAll(".queryImage").forEach(img => {
-                img.addEventListener("click", () => {
-                    modal.style.display = "block";
-                    modalImg.src = img.src;
-                });
+        document.querySelectorAll(".queryImage").forEach(img => {
+            img.addEventListener("click", () => {
+                modal.style.display = "block";
+                modalImg.src = img.src;
             });
+        });
 
-            span.onclick = function () {
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
                 modal.style.display = "none";
             }
+        }
+    });
+</script>
 
-            window.onclick = function (event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        });
-    </script>
-
-    <div class="modal" id="imageModal">
-        <span class="close">&times;</span>
-        <img class="modal-content" id="modalImg">
-    </div>
-    <script>
-        window.addEventListener("load", function () {
-            hljs.highlightAll();
-        });
-    </script>
+<div class="modal" id="imageModal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+<script>
+    window.addEventListener("load", function () {
+        hljs.highlightAll();
+    });
+</script>
 </body>
 
 </html>
